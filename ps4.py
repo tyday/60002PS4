@@ -194,7 +194,7 @@ class Patient(object):
         
 
         for bacteria in self.bacteria:
-            if not bacteria.is_killed():
+            if bacteria.is_killed():
                 deadlist.append(bacteria)
 
             else:
@@ -228,8 +228,8 @@ def calc_pop_avg(populations, n):
         float: The average bacteria population size at time step n
     """
     runningtotal = 0
-    for index, trial in range (0,len(populations)):
-        runningtotal += i[n]
+    for index in range (0,len(populations)):
+        runningtotal += len(populations[index][n])
     return runningtotal/len(populations)
 
 
@@ -284,11 +284,11 @@ def simulation_without_antibiotic(num_bacteria,
 
 
 # When you are ready to run the simulation, uncomment the next line
-populations = simulation_without_antibiotic(100, 1000, 0.1, 0.025, 50)
-print(len(populations))
-for i in range(1,300,100):
-    calc_pop_avg(populations,i)
-    print(calc_pop_avg)
+# populations = simulation_without_antibiotic(100, 1000, 0.1, 0.025, 20)
+# print(len(populations))
+# for i in range(1,300,10):
+#     a = calc_pop_avg(populations,i)
+#     print(a)
 
 ##########################
 # PROBLEM 3
@@ -315,7 +315,22 @@ def calc_pop_std(populations, t):
         float: the standard deviation of populations across different trials at
              a specific time step
     """
-    pass  # TODO
+    the_mean = calc_pop_avg(populations, t)
+    variance = 0
+    check = []
+    for index in range(0,len(populations)):
+        check.append(len(populations[index][t]))
+        variance += (len(populations[index][t]) - the_mean) **2
+    variance = variance/len(populations)
+    variance = math.sqrt(variance)
+    print (np.std(check), variance, the_mean)
+    return variance
+
+populations = simulation_without_antibiotic(100, 1000, 0.1, 0.025, 10)
+print(len(populations))
+for i in range(1,300,10):
+    a = calc_pop_std(populations,i)
+    print(a)
 
 
 def calc_95_ci(populations, t):
@@ -530,18 +545,18 @@ def simulation_with_antibiotic(num_bacteria,
 
 # When you are ready to run the simulations, uncomment the next lines one
 # at a time
-total_pop, resistant_pop = simulation_with_antibiotic(num_bacteria=100,
-                                                      max_pop=1000,
-                                                      birth_prob=0.3,
-                                                      death_prob=0.2,
-                                                      resistant=False,
-                                                      mut_prob=0.8,
-                                                      num_trials=50)
+# total_pop, resistant_pop = simulation_with_antibiotic(num_bacteria=100,
+#                                                       max_pop=1000,
+#                                                       birth_prob=0.3,
+#                                                       death_prob=0.2,
+#                                                       resistant=False,
+#                                                       mut_prob=0.8,
+#                                                       num_trials=50)
 
-total_pop, resistant_pop = simulation_with_antibiotic(num_bacteria=100,
-                                                      max_pop=1000,
-                                                      birth_prob=0.17,
-                                                      death_prob=0.2,
-                                                      resistant=False,
-                                                      mut_prob=0.8,
-                                                      num_trials=50)
+# total_pop, resistant_pop = simulation_with_antibiotic(num_bacteria=100,
+#                                                       max_pop=1000,
+#                                                       birth_prob=0.17,
+#                                                       death_prob=0.2,
+#                                                       resistant=False,
+#                                                       mut_prob=0.8,
+#                                                       num_trials=50)
