@@ -323,14 +323,14 @@ def calc_pop_std(populations, t):
         variance += (len(populations[index][t]) - the_mean) **2
     variance = variance/len(populations)
     variance = math.sqrt(variance)
-    print (np.std(check), variance, the_mean)
+    # print (np.std(check), variance, the_mean)
     return variance
 
-populations = simulation_without_antibiotic(100, 1000, 0.1, 0.025, 10)
-print(len(populations))
-for i in range(1,300,10):
-    a = calc_pop_std(populations,i)
-    print(a)
+# populations = simulation_without_antibiotic(100, 1000, 0.1, 0.025, 10)
+# print(len(populations))
+# for i in range(1,300,10):
+#     a = calc_pop_std(populations,i)
+#     print(a)
 
 
 def calc_95_ci(populations, t):
@@ -354,7 +354,19 @@ def calc_95_ci(populations, t):
 
         I.e., you should return a tuple containing (mean, width)
     """
-    pass  # TODO
+    the_mean = calc_pop_avg(populations, t)
+    the_stdv = calc_pop_std(populations, t)
+    the_cont = len(populations)
+    the_sem = the_stdv/ math.sqrt(the_cont)
+    the_width = 1.96 * the_sem
+
+    return the_mean, the_width
+
+populations = simulation_without_antibiotic(100, 1000, 0.1, 0.025, 10)
+print(len(populations))
+for i in range(1,300,10):
+    a = calc_95_ci(populations,i)
+    print(i, a)
 
 
 ##########################
