@@ -88,7 +88,8 @@ class SimpleBacteria(object):
                 probability
             death_prob (float in [0, 1]): Maximum death probability
         """
-        pass  # TODO
+        self.birth_prob = birth_prob
+        self.death_prob = death_prob
 
     def is_killed(self):
         """
@@ -99,7 +100,10 @@ class SimpleBacteria(object):
         Returns:
             bool: True with probability self.death_prob, False otherwise.
         """
-        pass  # TODO
+        if random.random() <= self.death_prob:
+            return True
+        else:
+            return False
 
     def reproduce(self, pop_density):
         """
@@ -127,7 +131,13 @@ class SimpleBacteria(object):
         Raises:
             NoChildException if this bacteria cell does not reproduce.
         """
-        pass  # TODO
+        chance_for_babies = self.birth_prob * (1 - pop_density)
+        if random.random() <= chance_for_babies:
+            newbaby = SimpleBacteria(self.birth_prob, self.death_prob)
+            return newbaby
+        else:
+            # raise NoChildException()
+            return 0
 
 
 class Patient(object):
@@ -142,7 +152,8 @@ class Patient(object):
             max_pop (int): Maximum possible bacteria population size for
                 this patient
         """
-        pass  # TODO
+        self.bacteria = bacteria
+        self.max_pop = max_pop
 
     def get_total_pop(self):
         """
@@ -151,7 +162,7 @@ class Patient(object):
         Returns:
             int: The total bacteria population
         """
-        pass  # TODO
+        return len(self.bacteria)
 
     def update(self):
         """
@@ -177,7 +188,28 @@ class Patient(object):
         Returns:
             int: The total bacteria population at the end of the update
         """
-        pass  # TODO
+        deadlist = []
+        currentlist = []
+        new_babes = []
+        
+
+        for bacteria in self.bacteria:
+            if not bacteria.is_killed():
+                deadlist.append(bacteria)
+
+            else:
+                current_population = len(self.bacteria) - len(deadlist)
+                current_pop_density = current_population / self.max_pop
+                currentlist.append(bacteria)
+                new_baby = bacteria.reproduce(current_pop_density)
+                if new_baby != 0:
+                    new_babes.append(new_baby)
+        
+        self.bacteria = currentlist + new_babes
+        return len(self.bacteria)
+
+            
+
 
 
 ##########################
@@ -195,7 +227,11 @@ def calc_pop_avg(populations, n):
     Returns:
         float: The average bacteria population size at time step n
     """
-    pass  # TODO
+    runningtotal = 0
+    for index, trial in range (0,len(populations)):
+        runningtotal += i[n]
+    return runningtotal/len(populations)
+
 
 
 def simulation_without_antibiotic(num_bacteria,
@@ -231,11 +267,28 @@ def simulation_without_antibiotic(num_bacteria,
         populations (list of lists or 2D array): populations[i][j] is the
             number of bacteria in trial i at time step j
     """
-    pass  # TODO
+    populations = []
+    for trial in range(0,num_trials):
+        bug_list = []
+        populations.append([])
+
+        for bug in range(0,num_bacteria):
+            newbug = SimpleBacteria(birth_prob,death_prob)
+            bug_list.append(newbug)
+        dead_guy = Patient(bug_list,max_pop)
+        for round in range(0,300):
+            x = dead_guy.update()
+            populations[trial].append(dead_guy.bacteria)
+    return populations
+
 
 
 # When you are ready to run the simulation, uncomment the next line
-# populations = simulation_without_antibiotic(100, 1000, 0.1, 0.025, 50)
+populations = simulation_without_antibiotic(100, 1000, 0.1, 0.025, 50)
+print(len(populations))
+for i in range(1,300,100):
+    calc_pop_avg(populations,i)
+    print(calc_pop_avg)
 
 ##########################
 # PROBLEM 3
