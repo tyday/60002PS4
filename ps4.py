@@ -362,11 +362,11 @@ def calc_95_ci(populations, t):
 
     return the_mean, the_width
 
-populations = simulation_without_antibiotic(100, 1000, 0.1, 0.025, 10)
-print(len(populations))
-for i in range(1,300,10):
-    a = calc_95_ci(populations,i)
-    print(i, a)
+# populations = simulation_without_antibiotic(100, 1000, 0.1, 0.025, 10)
+# print(len(populations))
+# for i in range(1,300,10):
+#     a = calc_95_ci(populations,i)
+#     print(i, a)
 
 
 ##########################
@@ -386,11 +386,13 @@ class ResistantBacteria(SimpleBacteria):
                 bacteria cell. This is the maximum probability of the
                 offspring acquiring antibiotic resistance
         """
-        pass  # TODO
-
+        SimpleBacteria.__init__(self, birth_prob,death_prob)
+        self.resistant = resistant
+        self.mut_prob = mut_prob
+        
     def get_resistant(self):
         """Returns whether the bacteria has antibiotic resistance"""
-        pass  # TODO
+        return self.resistant
 
     def is_killed(self):
         """Stochastically determines whether this bacteria cell is killed in
@@ -404,7 +406,14 @@ class ResistantBacteria(SimpleBacteria):
             bool: True if the bacteria dies with the appropriate probability
                 and False otherwise.
         """
-        pass  # TODO
+        if self.get_resistant():
+            if random.random() <= (self.death_prob/4):
+                return True
+        else:
+            if random.random() <= self.death_prob:
+                return True
+            else:
+                return False
 
     def reproduce(self, pop_density):
         """
@@ -435,8 +444,34 @@ class ResistantBacteria(SimpleBacteria):
             as this bacteria. Otherwise, raises a NoChildException if this
             bacteria cell does not reproduce.
         """
-        pass  # TODO
+        chance_for_babies = self.birth_prob * (1 - pop_density)
+        if random.random() <= chance_for_babies:
+            if self.resistant == True:
+                newbaby = ResistantBacteria(self.birth_prob,self.death_prob,True,self.mut_prob)
+                return newbaby
+            elif random.random() <= self.mut_prob:
+                newbaby = ResistantBacteria(self.birth_prob,self.death_prob,True,self.mut_prob)
+            else:
+                newbaby = ResistantBacteria(self.birth_prob,self.death_prob,False,self.mut_prob)
+            
+            return newbaby
+        else:
+            # raise NoChildException()
+            return 0
 
+# #create 100 resistant bacteria
+# baclist = []
+# for i in range(0,100):
+#     a = ResistantBacteria(.5,.5,False,.5)
+#     baclist.append(a)
+# print(a.birth_prob, a.death_prob,a.resistant, a.mut_prob)
+# while len(baclist) > 0:
+#     for bacteria in baclist:
+#         if a.is_killed():
+#             baclist.remove(bacteria)
+#         else:
+#             count += 1
+# print(count, count/100)
 
 class TreatedPatient(Patient):
     """
