@@ -493,14 +493,14 @@ class TreatedPatient(Patient):
         Don't forget to call Patient's __init__ method at the start of this
         method.
         """
-        pass  # TODO
+        Patient.__init__(self, bacteria, max_pop)
 
     def set_on_antibiotic(self):
         """
         Administer an antibiotic to this patient. The antibiotic acts on the
         bacteria population for all subsequent time steps.
         """
-        pass  # TODO
+        self.on_antibiotic = True
 
     def get_resist_pop(self):
         """
@@ -509,7 +509,12 @@ class TreatedPatient(Patient):
         Returns:
             int: the number of bacteria with antibiotic resistance
         """
-        pass  # TODO
+        count = 0
+
+        for bacteria in self.bacteria:
+            if bacteria.get_resistant():
+                count += 1
+        return count
 
     def update(self):
         """
@@ -536,7 +541,42 @@ class TreatedPatient(Patient):
         Returns:
             int: The total bacteria population at the end of the update
         """
-        pass  # TODO
+        deadlist = []
+        currentlist = []
+        resistantcurrentlist = []
+        new_babes = []
+
+        for bacteria in self.bacteria:
+            if bacteria is killed():
+                deadlist.append(bacteria)
+            else:
+                currentlist += bacteria
+        
+        
+        if self.on_antibiotic:
+            for bacteria in currentlist:
+                if bacteria.resistant:
+                    resistantcurrentlist += bacteria
+            currentlist = []
+            currentlist = resistantcurrentlist
+        
+        current_population = len(currentlist)
+        current_pop_density = current_population / self.max_pop
+        for bacteria in currentlist:
+            new_baby = bacteria.reproduce(current_pop_density)
+            if new_baby != 0:
+                new_babes.append(new_baby)
+        
+        self.bacteria = currentlist + new_babes
+        return len(self.bacteria)
+
+# populations = simulation_without_antibiotic(100, 1000, 0.1, 0.025, 10)
+# print(len(populations))
+# for i in range(1,300,10):
+#     a = calc_95_ci(populations,i)
+#     print(i, a)
+
+
 
 
 ##########################
