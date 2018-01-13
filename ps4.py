@@ -279,16 +279,23 @@ def simulation_without_antibiotic(num_bacteria,
         for round in range(0,300):
             x = dead_guy.update()
             populations[trial].append(dead_guy.bacteria)
+    y = []
+    x = []
+    count = 0
+    for count in range(0,300):
+        x.append(count)
+        y.append(calc_pop_avg(populations,count))
+    make_one_curve_plot(x,y,"Time","Bug Count","Growth of bacteria in untreated patient")
     return populations
 
 
 
 # When you are ready to run the simulation, uncomment the next line
-# populations = simulation_without_antibiotic(100, 1000, 0.1, 0.025, 20)
-# print(len(populations))
-# for i in range(1,300,10):
-#     a = calc_pop_avg(populations,i)
-#     print(a)
+populations = simulation_without_antibiotic(100, 1000, 0.1, 0.025, 1)
+print(len(populations))
+for i in range(1,300,10):
+    a = calc_pop_avg(populations,i)
+    print(a)
 
 ##########################
 # PROBLEM 3
@@ -647,14 +654,14 @@ def simulation_with_antibiotic(num_bacteria,
             populations[trial].append(dead_guy.bacteria)
 
     return populations
-populations = simulation_with_antibiotic(100, 1000, 0.1, 0.025, False, .1, 10)
-print(len(populations))
-for i in range(1,400,10):
-    a = calc_95_ci(populations,i)
-    print(i, a)
-for i in range(145,155, 1):
-    a = calc_95_ci(populations,i)
-    print(i, a)
+# populations = simulation_with_antibiotic(100, 1000, 0.1, 0.025, False, .1, 10)
+# print(len(populations))
+# for i in range(1,400,10):
+#     a = calc_95_ci(populations,i)
+#     print(i, a)
+# for i in range(145,155, 1):
+#     a = calc_95_ci(populations,i)
+#     print(i, a)
 
 
 # When you are ready to run the simulations, uncomment the next lines one
