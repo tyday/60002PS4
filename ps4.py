@@ -445,11 +445,12 @@ class ResistantBacteria(SimpleBacteria):
             bacteria cell does not reproduce.
         """
         chance_for_babies = self.birth_prob * (1 - pop_density)
+        chance_for_mutation = self.mut_prob * (1 - pop_density)
         if random.random() <= chance_for_babies:
             if self.resistant == True:
                 newbaby = ResistantBacteria(self.birth_prob,self.death_prob,True,self.mut_prob)
                 return newbaby
-            elif random.random() <= self.mut_prob:
+            elif random.random() <= chance_for_mutation:
                 newbaby = ResistantBacteria(self.birth_prob,self.death_prob,True,self.mut_prob)
             else:
                 newbaby = ResistantBacteria(self.birth_prob,self.death_prob,False,self.mut_prob)
@@ -494,6 +495,7 @@ class TreatedPatient(Patient):
         method.
         """
         Patient.__init__(self, bacteria, max_pop)
+        self.on_antibiotic = False
 
     def set_on_antibiotic(self):
         """
@@ -547,16 +549,16 @@ class TreatedPatient(Patient):
         new_babes = []
 
         for bacteria in self.bacteria:
-            if bacteria is killed():
+            if bacteria.is_killed():
                 deadlist.append(bacteria)
             else:
-                currentlist += bacteria
+                currentlist.append(bacteria)
         
         
         if self.on_antibiotic:
             for bacteria in currentlist:
                 if bacteria.resistant:
-                    resistantcurrentlist += bacteria
+                    resistantcurrentlist.append(bacteria)
             currentlist = []
             currentlist = resistantcurrentlist
         
@@ -627,7 +629,32 @@ def simulation_with_antibiotic(num_bacteria,
             resistant_pop[i][j] is the number of resistant bacteria for
             trial i at time step j
     """
-    pass  # TODO
+    populations = []
+    for trial in range(0,num_trials):
+        bug_list = []
+        populations.append([])
+
+        for bug in range(0,num_bacteria):
+            newbug = ResistantBacteria(birth_prob,death_prob,resistant,mut_prob)
+            bug_list.append(newbug)
+        dead_guy = TreatedPatient(bug_list,max_pop)
+        for round in range(0,150):
+            dead_guy.update()
+            populations[trial].append(dead_guy.bacteria)
+        dead_guy.set_on_antibiotic()
+        for round in range(0,250):
+            dead_guy.update()
+            populations[trial].append(dead_guy.bacteria)
+
+    return populations
+populations = simulation_with_antibiotic(100, 1000, 0.1, 0.025, False, .1, 10)
+print(len(populations))
+for i in range(1,400,10):
+    a = calc_95_ci(populations,i)
+    print(i, a)
+for i in range(145,155, 1):
+    a = calc_95_ci(populations,i)
+    print(i, a)
 
 
 # When you are ready to run the simulations, uncomment the next lines one
