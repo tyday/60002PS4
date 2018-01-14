@@ -91,6 +91,10 @@ class SimpleBacteria(object):
         self.birth_prob = birth_prob
         self.death_prob = death_prob
 
+    def __str__(self):
+        return_string = "SimpleBacteria. Birth Prob " + str(self.birth_prob) + " Death Prob " + str(self.death_prob)
+        return return_string
+
     def is_killed(self):
         """
         Stochastically determines whether this bacteria cell is killed in
@@ -229,9 +233,24 @@ def calc_pop_avg(populations, n):
     """
     runningtotal = 0
     for index in range (0,len(populations)):
-        runningtotal += len(populations[index][n])
+        runningtotal += len(populations[index][n][0])
     return runningtotal/len(populations)
 
+def calc_res_avg(populations, n):
+    """
+    Finds the average bacteria population size across trials at time step n
+
+    Args:
+        populations (list of lists or 2D array): populations[i][j] is the
+            number of bacteria in trial i at time step j
+
+    Returns:
+        float: The average bacteria population size at time step n
+    """
+    runningtotal = 0
+    for index in range (0,len(populations)):
+        runningtotal += (populations[index][n][1])
+    return runningtotal/len(populations)
 
 
 def simulation_without_antibiotic(num_bacteria,
@@ -291,11 +310,11 @@ def simulation_without_antibiotic(num_bacteria,
 
 
 # When you are ready to run the simulation, uncomment the next line
-populations = simulation_without_antibiotic(100, 1000, 0.1, 0.025, 1)
-print(len(populations))
-for i in range(1,300,10):
-    a = calc_pop_avg(populations,i)
-    print(a)
+# populations = simulation_without_antibiotic(100, 1000, 0.1, 0.025, 1)
+# print(len(populations))
+# for i in range(1,300,10):
+#     a = calc_pop_avg(populations,i)
+#     print(a)
 
 ##########################
 # PROBLEM 3
@@ -326,8 +345,8 @@ def calc_pop_std(populations, t):
     variance = 0
     check = []
     for index in range(0,len(populations)):
-        check.append(len(populations[index][t]))
-        variance += (len(populations[index][t]) - the_mean) **2
+        check.append(len(populations[index][t][0]))
+        variance += (len(populations[index][t][0]) - the_mean) **2
     variance = variance/len(populations)
     variance = math.sqrt(variance)
     # print (np.std(check), variance, the_mean)
@@ -414,10 +433,10 @@ class ResistantBacteria(SimpleBacteria):
                 and False otherwise.
         """
         if self.get_resistant():
-            if random.random() <= (self.death_prob/4):
+            if random.random() <= (self.death_prob):
                 return True
         else:
-            if random.random() <= self.death_prob:
+            if random.random() <= self.death_prob/4:
                 return True
             else:
                 return False
@@ -647,14 +666,26 @@ def simulation_with_antibiotic(num_bacteria,
         dead_guy = TreatedPatient(bug_list,max_pop)
         for round in range(0,150):
             dead_guy.update()
-            populations[trial].append(dead_guy.bacteria)
+            populations[trial].append([dead_guy.bacteria, dead_guy.get_resist_pop()])
         dead_guy.set_on_antibiotic()
         for round in range(0,250):
             dead_guy.update()
-            populations[trial].append(dead_guy.bacteria)
+            populations[trial].append([dead_guy.bacteria, dead_guy.get_resist_pop()])
 
+    x_coords =[]
+    y_coords1 =[]
+    y_coords2 = []
+    for count in range(0,400):
+        x_coords.append(count)
+        a,b = calc_95_ci(populations,count)
+        y_coords1.append(a)
+        y_coords2.append(calc_res_avg(populations,count))
+
+
+    make_two_curve_plot(x_coords, y_coords1, y_coords2, "Total", "Resistant",
+                        "Avgerage Population","Timestep","Simulation")
     return populations
-# populations = simulation_with_antibiotic(100, 1000, 0.1, 0.025, False, .1, 10)
+# populations = simulation_with_antibiotic(100, 1000, 0.3, 0.2, False, .8, 2)
 # print(len(populations))
 # for i in range(1,400,10):
 #     a = calc_95_ci(populations,i)
@@ -666,13 +697,13 @@ def simulation_with_antibiotic(num_bacteria,
 
 # When you are ready to run the simulations, uncomment the next lines one
 # at a time
-# total_pop, resistant_pop = simulation_with_antibiotic(num_bacteria=100,
-#                                                       max_pop=1000,
-#                                                       birth_prob=0.3,
-#                                                       death_prob=0.2,
-#                                                       resistant=False,
-#                                                       mut_prob=0.8,
-#                                                       num_trials=50)
+total_pop, resistant_pop = simulation_with_antibiotic(num_bacteria=100,
+                                                      max_pop=1000,
+                                                      birth_prob=0.3,
+                                                      death_prob=0.2,
+                                                      resistant=False,
+                                                      mut_prob=0.8,
+                                                      num_trials=50)
 
 # total_pop, resistant_pop = simulation_with_antibiotic(num_bacteria=100,
 #                                                       max_pop=1000,
